@@ -62,13 +62,6 @@ class OffHandInventory extends BaseInventory{
 	public function setItemInOffHand(Item $item) : void{
 		$this->setItem(0, $item);
 
-		$pk = new MobEquipmentPacket();
-		$pk->windowId = ContainerIds::OFFHAND;
-		$pk->hotbarSlot = $pk->inventorySlot = 0;
-		$pk->item = $this->getItem(0);
-		$pk->entityRuntimeId = $this->holder->getId();
-		$this->holder->getServer()->broadcastPacket($this->holder->getViewers(), $pk);
-
 		$pk = new InventorySlotPacket();
 		$pk->windowId = ContainerIds::OFFHAND;
 		$pk->inventorySlot = 0;

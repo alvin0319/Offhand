@@ -26,6 +26,7 @@
 declare(strict_types=1);
 namespace alvin0319\OffHand;
 
+use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\item\Item;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
@@ -35,7 +36,7 @@ use pocketmine\Player;
 class OffHandPlayer extends Player{
 
 	/** @var OffHandInventory */
-	protected $offhandInventory;
+	protected $offhandInventory = null;
 
 	protected function initEntity() : void{
 		$this->offhandInventory = new OffHandInventory($this);
@@ -73,5 +74,41 @@ class OffHandPlayer extends Player{
 			return true;
 		}
 		return parent::handleMobEquipment($packet);
+	}
+
+	protected function onDeath() : void{
+		//Crafting grid must always be evacuated even if keep-inventory is true. This dumps the contents into the
+		//main inventory and drops the rest on the ground.
+		$this->doCloseInventory();
+
+		$drops = array_merge($this->getDrops(), $this->offhandInventory->getContents(false));
+
+		$ev = new PlayerDeathEvent($this, $drops);
+		$ev->call();
+
+		if(!$ev->getKeepInventory()){
+			foreach($ev->getDrops() as $item){
+				$this->level->dropItem($this, $item);
+			}
+
+			if($this->inventory !== null){
+				$this->inventory->setHeldItemIndex(0);
+				$this->inventory->clearAll();
+			}
+			if($this->armorInventory !== null){
+				$this->armorInventory->clearAll();
+			}
+			if($this->offhandInventory !== null){
+				$this->offhandInventory->clearAll();
+			}
+		}
+
+		//TODO: allow this number to be manipulated during PlayerDeathEvent
+		$this->level->dropExperience($this, $this->getXpDropAmount());
+		$this->setXpAndProgress(0, 0);
+
+		if($ev->getDeathMessage() != ""){
+			$this->server->broadcastMessage($ev->getDeathMessage());
+		}
 	}
 }
