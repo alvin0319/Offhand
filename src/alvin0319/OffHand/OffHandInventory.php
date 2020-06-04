@@ -35,7 +35,7 @@ use pocketmine\Player;
 
 class OffHandInventory extends BaseInventory{
 
-	/** @var OffHandPlayer */
+	/** @var Player */
 	protected $holder;
 
 	public function __construct(Player $holder){
@@ -62,15 +62,26 @@ class OffHandInventory extends BaseInventory{
 	public function setItemInOffHand(Item $item) : void{
 		$this->setItem(0, $item);
 
+		$this->broadcastMobEquipmentPacket();
+
 		$pk = new InventorySlotPacket();
 		$pk->windowId = ContainerIds::OFFHAND;
 		$pk->inventorySlot = 0;
 		$pk->item = $this->getItemInOffHand();
-		$this->holder->getServer()->broadcastPacket($this->holder->getViewers(), $pk);
-		$this->holder->sendDataPacket($pk);
+		$this->holder->getServer()->batchPackets($this->holder->getLevel()->getPlayers(), [$pk]);
+
+		$this->getPlayer()->namedtag->setTag($item->nbtSerialize(-1, "OffHand"), true);
 	}
 
 	public function getItemInOffHand() : Item{
 		return $this->getItem(0);
+	}
+
+	public function broadcastMobEquipmentPacket() : void{
+		$pk = new MobEquipmentPacket();
+		$pk->windowId = $this->getPlayer()->getWindowId($this);
+		$pk->item = $this->getItemInOffHand();
+		$pk->entityRuntimeId = $this->getPlayer()->getId();
+		$this->holder->getServer()->batchPackets($this->holder->getLevel()->getPlayers(), [$pk]);
 	}
 }
