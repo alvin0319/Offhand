@@ -30,7 +30,9 @@ use pocketmine\inventory\BaseInventory;
 use pocketmine\item\Item;
 use pocketmine\network\mcpe\protocol\InventorySlotPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
+use pocketmine\network\mcpe\protocol\PlayerHotbarPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
+use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
 use pocketmine\Player;
 
 class OffHandInventory extends BaseInventory{
@@ -67,10 +69,17 @@ class OffHandInventory extends BaseInventory{
 		$pk = new InventorySlotPacket();
 		$pk->windowId = ContainerIds::OFFHAND;
 		$pk->inventorySlot = 0;
-		$pk->item = $this->getItemInOffHand();
+		$pk->item = ItemStackWrapper::legacy($this->getItem(0));
 		$this->holder->getServer()->batchPackets($this->holder->getLevel()->getPlayers(), [$pk]);
 
 		$this->getPlayer()->namedtag->setTag($item->nbtSerialize(-1, "OffHand"), true);
+
+		$pk = new PlayerHotbarPacket();
+		$pk->selectedHotbarSlot = 0;
+		$pk->windowId = ContainerIds::OFFHAND;
+		$pk->selectHotbarSlot = false;
+		$this->holder->getServer()->batchPackets($this->holder->getLevel()->getPlayers(), [$pk]);
+		//$pk->
 	}
 
 	public function getItemInOffHand() : Item{
