@@ -74,7 +74,7 @@ class OffhandInventory extends BaseInventory{
 
 	public function getItemInOffHand() : Item{
 		return $this->getItem(0);
-	}cd 
+	}
 
 	public function sendMobEquipmentPacket(Player $player) : void{
 		$pk = new MobEquipmentPacket();
