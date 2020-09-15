@@ -24,6 +24,7 @@
  */
 
 declare(strict_types=1);
+
 namespace alvin0319\OffHand;
 
 use pocketmine\event\Listener;
@@ -31,16 +32,20 @@ use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\item\Item;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\network\mcpe\protocol\AddPlayerPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 
-class OffHand extends PluginBase implements Listener{
+use function array_merge;
 
-	/** @var OffHandInventory[] */
+class Offhand extends PluginBase implements Listener{
+
+	/** @var OffhandInventory[] */
 	protected $inventories = [];
 
 	public function onEnable() : void{
@@ -48,7 +53,7 @@ class OffHand extends PluginBase implements Listener{
 	}
 
 	public function onPlayerJoin(PlayerJoinEvent $event) : void{
-		$this->inventories[$event->getPlayer()->getName()] = new OffHandInventory($event->getPlayer());
+		$this->inventories[$event->getPlayer()->getName()] = new OffhandInventory($event->getPlayer());
 		$this->loadInventory($event->getPlayer());
 	}
 
@@ -64,6 +69,7 @@ class OffHand extends PluginBase implements Listener{
 	}
 
 	private function saveInventory(Player $player) : void{
+		$player->namedtag->setTag($this->getOffHandInventory($player)->getItemInOffHand()->nbtSerialize(-1, "OffHand"));
 		unset($this->inventories[$player->getName()]);
 	}
 
@@ -73,16 +79,20 @@ class OffHand extends PluginBase implements Listener{
 		if($packet instanceof MobEquipmentPacket){
 			if($packet->windowId === ContainerIds::OFFHAND){
 				$inv = $this->getOffHandInventory($player);
-				if($inv instanceof OffHandInventory){
-					$item = $inv->getItem($packet->hotbarSlot);
-					if(!$item->equals($packet->item)){
-						$this->getServer()->getLogger()->debug("Tried to equip " . $packet->item . " but have " . $item . " in target slot");
-						$event->setCancelled();
-						$inv->sendContents($player);
-						return;
-					}
+				if($inv instanceof OffhandInventory){
 					$inv->setItemInOffHand($packet->item);
+					$event->setCancelled();
 				}
+			}
+		}
+	}
+
+	public function onDataPacketSend(DataPacketSendEvent $event) : void{
+		$packet = $event->getPacket();
+		if($packet instanceof AddPlayerPacket){
+			if(($player = $this->getServer()->getPlayerExact($packet->username)) !== null){
+				$this->getOffHandInventory($event->getPlayer())->sendMobEquipmentPacket($player);
+				$this->getOffHandInventory($event->getPlayer())->sendMobEquipmentPacket($event->getPlayer());
 			}
 		}
 	}
@@ -97,7 +107,7 @@ class OffHand extends PluginBase implements Listener{
 		}
 	}
 
-	public function getOffHandInventory(Player $player) : ?OffHandInventory{
+	public function getOffHandInventory(Player $player) : ?OffhandInventory{
 		return $this->inventories[$player->getName()] ?? null;
 	}
 }

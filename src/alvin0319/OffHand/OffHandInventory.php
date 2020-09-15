@@ -24,19 +24,17 @@
  */
 
 declare(strict_types=1);
+
 namespace alvin0319\OffHand;
 
+use BadMethodCallException;
+use pocketmine\entity\Entity;
 use pocketmine\inventory\BaseInventory;
 use pocketmine\item\Item;
-use pocketmine\network\mcpe\protocol\InventorySlotPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
-use pocketmine\network\mcpe\protocol\PlayerHotbarPacket;
-use pocketmine\network\mcpe\protocol\types\ContainerIds;
-use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
 use pocketmine\Player;
-use pocketmine\entity\Entity;
 
-class OffHandInventory extends BaseInventory{
+class OffhandInventory extends BaseInventory{
 
 	/** @var Player */
 	protected $holder;
@@ -51,7 +49,7 @@ class OffHandInventory extends BaseInventory{
 	}
 
 	public function setSize(int $size) : void{
-		throw new \BadMethodCallException("Cannot call setSize on OffHandInventory");
+		throw new BadMethodCallException("Cannot call setSize on OffHandInventory");
 	}
 
 	public function getName() : string{
@@ -64,35 +62,31 @@ class OffHandInventory extends BaseInventory{
 
 	public function setItemInOffHand(Item $item) : void{
 		$this->setItem(0, $item);
-		$this->holder->getDataPropertyManager()->setByte(Entity::DATA_COLOR,Entity::DATA_TYPE_BYTE);
 
-		$this->broadcastMobEquipmentPacket();
+		$this->holder->getDataPropertyManager()->setByte(Entity::DATA_COLOR, Entity::DATA_TYPE_BYTE);
 
-		$pk = new InventorySlotPacket();
-		$pk->windowId = ContainerIds::OFFHAND;
-		$pk->inventorySlot = 0;
-		$pk->item = ItemStackWrapper::legacy($this->getItem(0));
-		$this->holder->getServer()->batchPackets($this->holder->getLevel()->getPlayers(), [$pk]);
+		$this->sendMobEquipmentPacket($this->holder);
 
-		$this->getPlayer()->namedtag->setTag($item->nbtSerialize(-1, "OffHand"), true);
-
-		$pk = new PlayerHotbarPacket();
-		$pk->selectedHotbarSlot = 0;
-		$pk->windowId = ContainerIds::OFFHAND;
-		$pk->selectHotbarSlot = false;
-		$this->holder->getServer()->batchPackets($this->holder->getLevel()->getPlayers(), [$pk]);
-		//$pk->
+		foreach($this->viewers as $player){
+			$this->sendMobEquipmentPacket($player);
+		}
 	}
 
 	public function getItemInOffHand() : Item{
 		return $this->getItem(0);
-	}
+	}cd 
 
-	public function broadcastMobEquipmentPacket() : void{
+	public function sendMobEquipmentPacket(Player $player) : void{
 		$pk = new MobEquipmentPacket();
 		$pk->windowId = $this->getPlayer()->getWindowId($this);
 		$pk->item = $this->getItemInOffHand();
 		$pk->entityRuntimeId = $this->getPlayer()->getId();
-		$this->holder->getServer()->batchPackets($this->holder->getLevel()->getPlayers(), [$pk]);
+		$player->sendDataPacket($pk);
+	}
+
+	public function onSlotChange(int $index, Item $before, bool $send) : void{
+		foreach($this->viewers as $player){
+			$this->sendMobEquipmentPacket($player);
+		}
 	}
 }

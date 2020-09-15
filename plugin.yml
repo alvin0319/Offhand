@@ -1,5 +1,5 @@
-name: OffHand
+name: Offhand
 author: alvin0319
-main: alvin0319\OffHand\OffHand
+main: alvin0319\Offhand\Offhand
 version: 1.0.1
 api: 3.12.0
