@@ -34,7 +34,7 @@ use pocketmine\item\Item;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\Player;
 
-class OffhandInventory extends BaseInventory{
+class OffHandInventory extends BaseInventory{
 
 	/** @var Player */
 	protected $holder;

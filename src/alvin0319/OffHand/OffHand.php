@@ -43,9 +43,9 @@ use pocketmine\plugin\PluginBase;
 
 use function array_merge;
 
-class Offhand extends PluginBase implements Listener{
+class OffHand extends PluginBase implements Listener{
 
-	/** @var OffhandInventory[] */
+	/** @var OffHandInventory[] */
 	protected $inventories = [];
 
 	public function onEnable() : void{
@@ -53,7 +53,7 @@ class Offhand extends PluginBase implements Listener{
 	}
 
 	public function onPlayerJoin(PlayerJoinEvent $event) : void{
-		$this->inventories[$event->getPlayer()->getName()] = new OffhandInventory($event->getPlayer());
+		$this->inventories[$event->getPlayer()->getName()] = new OffHandInventory($event->getPlayer());
 		$this->loadInventory($event->getPlayer());
 	}
 
@@ -79,7 +79,7 @@ class Offhand extends PluginBase implements Listener{
 		if($packet instanceof MobEquipmentPacket){
 			if($packet->windowId === ContainerIds::OFFHAND){
 				$inv = $this->getOffHandInventory($player);
-				if($inv instanceof OffhandInventory){
+				if($inv instanceof OffHandInventory){
 					$inv->setItemInOffHand($packet->item);
 					$event->setCancelled();
 				}
@@ -107,7 +107,7 @@ class Offhand extends PluginBase implements Listener{
 		}
 	}
 
-	public function getOffHandInventory(Player $player) : ?OffhandInventory{
+	public function getOffHandInventory(Player $player) : ?OffHandInventory{
 		return $this->inventories[$player->getName()] ?? null;
 	}
 }
