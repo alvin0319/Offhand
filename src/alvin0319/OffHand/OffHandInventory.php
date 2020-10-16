@@ -66,6 +66,7 @@ class OffHandInventory extends BaseInventory{
 		$this->setItem(0, $item);
 		
 		$pk = new InventoryContentPacket();
+		$pk->windowId = $this->holder->getWindowId($this);
 		$pk->items = [ItemStackWrapper::legacy($item)];
 		$this->holder->sendDataPacket($pk);
 
