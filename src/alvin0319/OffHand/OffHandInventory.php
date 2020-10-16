@@ -32,6 +32,8 @@ use pocketmine\entity\Entity;
 use pocketmine\inventory\BaseInventory;
 use pocketmine\item\Item;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
+use pocketmine\network\mcpe\protocol\InventoryContentPacket;
+use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
 use pocketmine\Player;
 
 class OffHandInventory extends BaseInventory{
@@ -62,6 +64,10 @@ class OffHandInventory extends BaseInventory{
 
 	public function setItemInOffHand(Item $item) : void{
 		$this->setItem(0, $item);
+		
+		$pk = new InventoryContentPacket();
+		$pk->items = [ItemStackWrapper::legacy($item)];
+		$this->holder->sendDataPacket($pk);
 
 		$this->holder->getDataPropertyManager()->setByte(Entity::DATA_COLOR, Entity::DATA_TYPE_BYTE);
 
