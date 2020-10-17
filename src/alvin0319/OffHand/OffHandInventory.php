@@ -88,7 +88,7 @@ class OffHandInventory extends BaseInventory{
 		$pk->windowId = $this->getPlayer()->getWindowId($this);
 		$pk->item = $this->getItemInOffHand();
 		$pk->entityRuntimeId = $this->getPlayer()->getId();
-		$pk->hotbarSlot = 0;
+		$pk->hotbarSlot = $pk->inventorySlot = 0;
 		$player->sendDataPacket($pk);
 	}
 
