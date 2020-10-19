@@ -10,7 +10,7 @@ A PocketMine-MP Plugin that implements OffHand (and OffHandInventory)
 
 ## Known bugs
 
-* [ ] Offhand's item doesn't appear when player join the server.
+None 😉
 
 If you have experienced bug? Please report the bug on issue tracker.
 
