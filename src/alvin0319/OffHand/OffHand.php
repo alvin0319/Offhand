@@ -7,7 +7,7 @@
  * | (_| | |\ V /| | | | | |_| |__) | |\__, |
  *  \__,_|_| \_/ |_|_| |_|\___/____/|_|  /_/
  *
- * Copyright (C) 2020 alvin0319
+ * Copyright (C) 2020 - 2021 alvin0319
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
