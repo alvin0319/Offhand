@@ -37,6 +37,7 @@ use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
 use pocketmine\Player;
 
 class OffHandInventory extends BaseInventory{
+	public const SLOT_OFFHAND = 0;
 
 	/** @var Player */
 	protected $holder;
@@ -63,7 +64,7 @@ class OffHandInventory extends BaseInventory{
 	}
 
 	public function setItemInOffHand(Item $item) : void{
-		$this->setItem(0, $item);
+		$this->setItem(self::SLOT_OFFHAND, $item);
 		
 		$pk = new InventoryContentPacket();
 		$pk->windowId = $this->holder->getWindowId($this);
@@ -80,7 +81,7 @@ class OffHandInventory extends BaseInventory{
 	}
 
 	public function getItemInOffHand() : Item{
-		return $this->getItem(0);
+		return $this->getItem(self::SLOT_OFFHAND);
 	}
 
 	public function sendMobEquipmentPacket(Player $player) : void{
