@@ -57,8 +57,11 @@ class OffhandInventory extends BaseInventory{
 		$this->getHolder()->namedtag->setTag(new ListTag("Offhand", [$item->nbtSerialize()]));
 		return true;
 	}
+	private function getPlayersVariadic(Player ...$players): array{
+		return $players;
+	}
 	public function sendItem(array $players = null): void{
-	    $players = $players ?? $this->holder->getViewers();
+	    $players = $this->getPlayersVariadic($players ?? $this->holder->getViewers());
 		$pk = new MobEquipmentPacket;
 		$pk->windowId = ContainerIds::OFFHAND;
 		$pk->item = $this->getItem(0);
