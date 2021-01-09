@@ -27,75 +27,55 @@ declare(strict_types=1);
 
 namespace alvin0319\OffHand;
 
-use BadMethodCallException;
-use pocketmine\entity\Entity;
 use pocketmine\inventory\BaseInventory;
-use pocketmine\item\Item;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
-use pocketmine\network\mcpe\protocol\InventoryContentPacket;
-use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
-use pocketmine\Player;
-
-class OffHandInventory extends BaseInventory{
-	public const SLOT_OFFHAND = 0;
-
-	/** @var Player */
+use pocketmine\network\mcpe\protocol\types\ContainerIds;
+use pocketmine\nbt\tag\ListTag;
+use pocketmine\item\Item;
+use pocketmine\entity\Human;
+use pocketmine\{Server, Player};
+class OffhandInventory extends BaseInventory{
+    /** @var Human */
 	protected $holder;
-
-	public function __construct(Player $holder){
-		parent::__construct([], 1);
+	public function __construct(Human $holder){
 		$this->holder = $holder;
+		parent::__construct();
 	}
-
-	public function getPlayer() : Player{
-		return $this->holder;
-	}
-
-	public function setSize(int $size) : void{
-		throw new BadMethodCallException("Cannot call setSize on OffHandInventory");
-	}
-
 	public function getName() : string{
-		return "OffHandInventory";
+		return "Offhand";
 	}
-
 	public function getDefaultSize() : int{
 		return 1;
 	}
-
-	public function setItemInOffHand(Item $item) : void{
-		$this->setItem(self::SLOT_OFFHAND, $item);
-		
-		$pk = new InventoryContentPacket();
-		$pk->windowId = $this->holder->getWindowId($this);
-		$pk->items = [ItemStackWrapper::legacy($item)];
-		$this->holder->sendDataPacket($pk);
-
-		$this->holder->getDataPropertyManager()->setByte(Entity::DATA_COLOR, Entity::DATA_TYPE_BYTE);
-
-		$this->sendMobEquipmentPacket($this->holder);
-
-		foreach($this->viewers as $player){
-			$this->sendMobEquipmentPacket($player);
+	public function setSize(int $size){
+		throw new \BadMethodCallException("Offhand can only carry one item at a time");
+	}
+	public function setItem(int $index, Item $item, bool $send = true): bool{
+	    parent::setItem($index, $item, $send);
+	    $this->sendItem();
+	    $this->sendContents($this->getHolder());
+		$this->getHolder()->namedtag->setTag(new ListTag("Offhand", [$item->nbtSerialize()]));
+		return true;
+	}
+	private function getPlayersVariadic(Player ...$players): array{
+		return $players;
+	}
+	public function sendItem(array $players = null): void{
+	    $players = $this->getPlayersVariadic($players ?? $this->holder->getViewers());
+		$pk = new MobEquipmentPacket;
+		$pk->windowId = ContainerIds::OFFHAND;
+		$pk->item = $this->getItem(0);
+		$pk->inventorySlot = $pk->hotbarSlot = 0;
+		$pk->entityRuntimeId = $this->getHolder()->getId();
+		foreach($players as $player){
+		    $player->batchDataPacket($pk);
 		}
 	}
-
-	public function getItemInOffHand() : Item{
-		return $this->getItem(self::SLOT_OFFHAND);
-	}
-
-	public function sendMobEquipmentPacket(Player $player) : void{
-		$pk = new MobEquipmentPacket();
-		$pk->windowId = $this->getPlayer()->getWindowId($this);
-		$pk->item = $this->getItemInOffHand();
-		$pk->entityRuntimeId = $this->getPlayer()->getId();
-		$pk->hotbarSlot = $pk->inventorySlot = 0;
-		$player->sendDataPacket($pk);
-	}
-
-	public function onSlotChange(int $index, Item $before, bool $send) : void{
-		foreach($this->viewers as $player){
-			$this->sendMobEquipmentPacket($player);
-		}
+	/**
+	 * This override is here for documentation and code completion purposes only.
+	 * @return Human
+	 */
+	public function getHolder(){
+		return $this->holder;
 	}
 }
