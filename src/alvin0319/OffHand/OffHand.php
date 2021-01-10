@@ -99,11 +99,10 @@ class OffHand extends PluginBase implements Listener{
             		$offhand->clearAll();
 		}
         }
-
+	private static $offhand = [];
 	public function getOffHandInventory(Human $player): OffHandInventory{
-        	static $players = [];
         	$UUID = $player->getUniqueId()->toString();
-        	$inventory = $players[$UUID] = $players[$UUID] ?? new OffhandInventory($player);
+        	$inventory = self::$offhand[$UUID] = self::$offhand[$UUID] ?? new OffhandInventory($player);
         	if($player instanceof Player){
             		$player->addWindow($inventory, ContainerIds::OFFHAND, true);
         	}
