@@ -30,6 +30,7 @@ namespace alvin0319\Offhand;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerLoginEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\item\Item;
@@ -58,6 +59,13 @@ class Offhand extends PluginBase implements Listener{
 	public function onPlayerLogin(PlayerLoginEvent $event){
 		$player = $event->getPlayer();
 		$this->getOffhandInventory($player)->broadcastMobEquipment();
+	}
+
+	public function onPlayerQuit(PlayerQuitEvent $event) : void{
+		$player = $event->getPlayer();
+		$inv = $this->getOffhandInventory($player);
+		$item = $inv->getItemInOffhand();
+		$player->namedtag->setTag($item->nbtSerialize(-1, "offhand"));
 	}
 
 	public function getOffhandInventory(Player $player) : PlayerOffhandInventory{

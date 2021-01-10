@@ -29,7 +29,6 @@ namespace alvin0319\Offhand;
 
 use pocketmine\inventory\BaseInventory;
 use pocketmine\item\Item;
-
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
 use pocketmine\Player;
