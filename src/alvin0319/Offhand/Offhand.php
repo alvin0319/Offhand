@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace alvin0319\Offhand;
 
+use pocketmine\entity\Entity;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerLoginEvent;
@@ -76,6 +77,8 @@ class Offhand extends PluginBase implements Listener{
 		if($player->namedtag->hasTag("offhand", CompoundTag::class)){
 			$inv->setItemInOffhand(Item::nbtDeserialize($player->namedtag->getCompoundTag("offhand")));
 		}
+		$player->addWindow($inv, ContainerIds::OFFHAND, true);
+		$player->getDataPropertyManager()->setByte(Entity::DATA_COLOR, 0);
 		return $this->inventories[$player->getRawUniqueId()] = $inv;
 	}
 
