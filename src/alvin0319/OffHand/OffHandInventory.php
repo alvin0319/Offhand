@@ -33,7 +33,8 @@ use pocketmine\network\mcpe\protocol\types\ContainerIds;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\item\Item;
 use pocketmine\entity\Human;
-use pocketmine\{Server, Player};
+use pocketmine\Server;
+use pocketmine\utils\MainLogger;
 class OffhandInventory extends BaseInventory{
     /** @var Human */
 	protected $holder;
@@ -51,24 +52,25 @@ class OffhandInventory extends BaseInventory{
 		throw new \BadMethodCallException("Offhand can only carry one item at a time");
 	}
 	public function setItem(int $index, Item $item, bool $send = true): bool{
-	    parent::setItem($index, $item, $send);
-	    $this->sendItem();
-	    $this->sendContents($this->getHolder());
+	    	parent::setItem($index, $item, $send);
+	    	$this->sendItem();
+	    	$this->sendContents($this->getHolder());
 		$this->getHolder()->namedtag->setTag(new ListTag("Offhand", [$item->nbtSerialize()]));
 		return true;
 	}
-	private function getPlayersVariadic(Player ...$players): array{
-		return $players;
-	}
 	public function sendItem(array $players = null): void{
-	    $players = $this->getPlayersVariadic($players ?? $this->holder->getViewers());
+	    	$players = $players ?? $this->holder->getViewers();
 		$pk = new MobEquipmentPacket;
 		$pk->windowId = ContainerIds::OFFHAND;
 		$pk->item = $this->getItem(0);
 		$pk->inventorySlot = $pk->hotbarSlot = 0;
 		$pk->entityRuntimeId = $this->getHolder()->getId();
 		foreach($players as $player){
-		    $player->batchDataPacket($pk);
+			try{
+		    		$player->batchDataPacket($pk);
+			}catch(\Error $err){
+				MainLogger::getLogger()->logException($err);
+			}
 		}
 	}
 	/**
