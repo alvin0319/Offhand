@@ -30,7 +30,7 @@ namespace alvin0319\OffHand;
 use pocketmine\inventory\BaseInventory;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
-use pocketmine\nbt\tag\ListTag;
+use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\item\Item;
 use pocketmine\entity\Human;
 use pocketmine\Server;
@@ -55,7 +55,7 @@ class OffhandInventory extends BaseInventory{
 	    	parent::setItem($index, $item, $send);
 	    	$this->sendItem();
 	    	$this->sendContents($this->getHolder());
-		$this->getHolder()->namedtag->setTag(new ListTag("Offhand", [$item->nbtSerialize()]));
+		$this->getHolder()->namedtag->setTag(new CompoundTag("Offhand", $item->nbtSerialize()));
 		return true;
 	}
 	public function sendItem(array $players = null): void{
