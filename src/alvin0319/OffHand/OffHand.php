@@ -30,84 +30,87 @@ namespace alvin0319\OffHand;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerJoinEvent;
-use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
+use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\Item;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\AddPlayerPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
+use pocketmine\entity\Human;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 
 use function array_merge;
+use function array_filter;
 
 class OffHand extends PluginBase implements Listener{
-
-	/** @var OffHandInventory[] */
-	protected $inventories = [];
 
 	public function onEnable() : void{
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 	}
-
+	/**
+	 * @priority MONITOR
+	 */
 	public function onPlayerJoin(PlayerJoinEvent $event) : void{
-		$this->inventories[$event->getPlayer()->getName()] = new OffHandInventory($event->getPlayer());
-		$this->loadInventory($event->getPlayer());
+        	$player = $event->getPlayer();
+        	$this->getOffhandInventory($player)->sendContents($player);
 	}
 
-	public function onPlayerQuit(PlayerQuitEvent $event) : void{
-		$this->saveInventory($event->getPlayer());
-	}
-
-	private function loadInventory(Player $player) : void{
-		$player->addWindow($this->getOffHandInventory($player), ContainerIds::OFFHAND, true);
-		if($player->namedtag->hasTag("OffHand", CompoundTag::class)){
-			$this->getOffHandInventory($player)->setItemInOffHand(Item::nbtDeserialize($player->namedtag->getCompoundTag("OffHand")));
-		}
-	}
-
-	private function saveInventory(Player $player) : void{
-		$player->namedtag->setTag($this->getOffHandInventory($player)->getItemInOffHand()->nbtSerialize(-1, "OffHand"));
-		unset($this->inventories[$player->getName()]);
-	}
-
+	/**
+	 * @ignoreCancelled true
+	 * @priority MONITOR
+	 */
 	public function onDataPacketReceive(DataPacketReceiveEvent $event) : void{
 		$packet = $event->getPacket();
 		$player = $event->getPlayer();
-		if($packet instanceof MobEquipmentPacket){
-			if($packet->windowId === ContainerIds::OFFHAND){
-				$inv = $this->getOffHandInventory($player);
-				if($inv instanceof OffHandInventory){
-					$inv->setItemInOffHand($packet->item);
-					$event->setCancelled();
-				}
-			}
-		}
+        	if($packet instanceof MobEquipmentPacket and $packet->windowId == ContainerIds::OFFHAND){
+            		$offhand = $this->getOffhandInventory($player);
+            		if(!$offhand->getItem(0)->equalsExact($packet->item)){
+                		$offhand->sendContents($player);
+                		$event->setCancelled();
+                		return;
+            		}
+            		$offhand->setItem(0, $packet->item);
+        	}
 	}
-
+	/**
+	 * @ignoreCancelled true
+	 * @priority MONITOR
+	 */
 	public function onDataPacketSend(DataPacketSendEvent $event) : void{
-		$packet = $event->getPacket();
-		if($packet instanceof AddPlayerPacket){
-			if(($player = $this->getServer()->getPlayerExact($packet->username)) !== null){
-				$this->getOffHandInventory($event->getPlayer())->sendMobEquipmentPacket($player);
-				$this->getOffHandInventory($event->getPlayer())->sendMobEquipmentPacket($event->getPlayer());
-			}
-		}
+        	$packet = $event->getPacket();
+        	$player = $event->getPlayer();
+        	if($packet instanceof AddPlayerPacket){
+            		$this->getOffhandInventory($player->getServer()->getPlayerExact($packet->username) ?? $player)->sendItem([$player]);
+        	}
 	}
-
+	/**
+	 * @priority MONITOR
+	 */
 	public function onDeath(PlayerDeathEvent $event) : void{
-		$player = $event->getPlayer();
-		$drops = $event->getDrops();
-		if(!$event->getKeepInventory()){
-			$drops = array_merge($drops, $this->getOffHandInventory($player)->getContents(false));
-			$event->setDrops($drops);
-			$this->getOffHandInventory($player)->clearAll();
+        	$player = $event->getPlayer();
+        	$offhand = $this->getOffhandInventory($player);
+        	if(!$event->getKeepInventory() and !empty($event->getDrops())){
+            		$event->setDrops(array_merge($event->getDrops(), array_filter([$offhand->getItem(0)], function(Item $item): bool{
+                		return !$item->hasEnchantment(Enchantment::VANISHING);
+            		})));
+            		$offhand->clearAll();
 		}
-	}
-
-	public function getOffHandInventory(Player $player) : ?OffHandInventory{
-		return $this->inventories[$player->getName()] ?? null;
+        }
+	private static $offhand = [];
+	public function getOffHandInventory(Human $player): OffHandInventory{
+        	$UUID = $player->getUniqueId()->toString();
+        	$inventory = self::$offhand[$UUID] = self::$offhand[$UUID] ?? new OffhandInventory($player);
+        	if($player instanceof Player){
+            		$player->addWindow($inventory, ContainerIds::OFFHAND, true);
+        	}
+        	if($player->namedtag->hasTag("Offhand", CompoundTag::class)){
+            		if(!$inventory->getItem(0)->equalsExact($item = Item::nbtDeserialize($player->namedtag->getCompoundTag("Offhand")))){
+                		$inventory->setItem(0, $item);
+            		}
+        	}
+        	return $inventory;
 	}
 }
