@@ -34,7 +34,7 @@ use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\Item;
-use pocketmine\nbt\tag\ListTag;
+use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\AddPlayerPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
@@ -106,8 +106,8 @@ class OffHand extends PluginBase implements Listener{
         	if($player instanceof Player){
             		$player->addWindow($inventory, ContainerIds::OFFHAND, true);
         	}
-        	if($player->namedtag->hasTag("Offhand", ListTag::class)){
-            		if(!$inventory->getItem(0)->equalsExact($item = Item::nbtDeserialize($player->namedtag->getListTag("Offhand")->get(0)))){
+        	if($player->namedtag->hasTag("Offhand", CompoundTag::class)){
+            		if(!$inventory->getItem(0)->equalsExact($item = Item::nbtDeserialize($player->namedtag->getCompoundTag("Offhand")))){
                 		$inventory->setItem(0, $item);
             		}
         	}
