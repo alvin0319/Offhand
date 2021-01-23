@@ -30,54 +30,77 @@ namespace alvin0319\OffHand;
 use pocketmine\inventory\BaseInventory;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
-use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\item\Item;
 use pocketmine\entity\Human;
-use pocketmine\Server;
+use pocketmine\Player;
 use pocketmine\utils\MainLogger;
-class OffhandInventory extends BaseInventory{
+
+class OffhandInventory extends BaseInventory
+{
     /** @var Human */
-	protected $holder;
-	public function __construct(Human $holder){
-		$this->holder = $holder;
-		parent::__construct();
-	}
-	public function getName() : string{
-		return "Offhand";
-	}
-	public function getDefaultSize() : int{
-		return 1;
-	}
-	public function setSize(int $size){
-		throw new \BadMethodCallException("Offhand can only carry one item at a time");
-	}
-	public function setItem(int $index, Item $item, bool $send = true): bool{
-	    	parent::setItem($index, $item, $send);
-	    	$this->sendItem();
-	    	$this->sendContents($this->getHolder());
-		$this->getHolder()->namedtag->setTag(new CompoundTag("Offhand", $item->nbtSerialize()));
-		return true;
-	}
-	public function sendItem(array $players = null): void{
-	    	$players = $players ?? $this->holder->getViewers();
-		$pk = new MobEquipmentPacket;
-		$pk->windowId = ContainerIds::OFFHAND;
-		$pk->item = $this->getItem(0);
-		$pk->inventorySlot = $pk->hotbarSlot = 0;
-		$pk->entityRuntimeId = $this->getHolder()->getId();
-		foreach($players as $player){
-			try{
-		    		$player->batchDataPacket($pk);
-			}catch(\Error $err){
-				MainLogger::getLogger()->logException($err);
-			}
-		}
-	}
-	/**
-	 * This override is here for documentation and code completion purposes only.
-	 * @return Human
-	 */
-	public function getHolder(){
-		return $this->holder;
-	}
+    protected $holder;
+    
+    public function __construct(Human $holder)
+    {
+        $this->holder = $holder;
+        parent::__construct();
+    }
+    
+    public function getName(): string
+    {
+        return "Offhand";
+    }
+    
+    public function getDefaultSize(): int
+    {
+        return 1;
+    }
+    
+    public function setSize(int $size)
+    {
+        throw new \BadMethodCallException("Offhand can only carry one item at a time");
+    }
+    
+    public function setItem(int $index, Item $item, bool $send = true): bool
+    {
+        parent::setItem($index, $item, $send);
+        $this->sendItem();
+        $this->sendContents($this->getHolder());
+        
+        $this->getHolder()->namedtag->setTag($item->nbtSerialize(-1, "OffHand"));
+        return true;
+    }
+    
+    public function sendItem(array $players = null): void
+    {
+        $players = $players ?? $this->holder->getViewers();
+        $pk = new MobEquipmentPacket;
+        $pk->windowId = ContainerIds::OFFHAND;
+        $pk->item = $this->getItem(0);
+        $pk->inventorySlot = $pk->hotbarSlot = 0;
+        $pk->entityRuntimeId = $this->getHolder()->getId();
+        foreach ($players as $player) {
+            try {
+                $player->batchDataPacket($pk);
+            } catch (\Error $err) {
+                MainLogger::getLogger()->logException($err);
+            }
+        }
+    }
+    
+    /**
+     * This override is here for documentation and code completion purposes only.
+     *
+     * @return Player|Human
+     */
+    public function getHolder()
+    {
+        return $this->holder;
+    }
+    
+    public function setHolder($holder)
+    {
+        $this->holder = $holder;
+        return $this;
+    }
 }
