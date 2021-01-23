@@ -67,7 +67,7 @@ class OffhandInventory extends BaseInventory
         $this->sendItem();
         $this->sendContents($this->getHolder());
         
-        $this->getHolder()->namedtag->setTag($item->nbtSerialize(-1, "OffHand"));
+        $this->getHolder()->namedtag->setTag($item->nbtSerialize(-1, "Offhand"));
         return true;
     }
     
