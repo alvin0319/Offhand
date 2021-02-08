@@ -67,6 +67,7 @@ class OffhandInventory extends BaseInventory
         $this->sendItem();
         $this->sendContents($this->getHolder());
         
+        $this->getHolder()->getDataPropertyManager()->setByte(Player::DATA_COLOR, Player::DATA_TYPE_BYTE);
         $this->getHolder()->namedtag->setTag($item->nbtSerialize(-1, "Offhand"));
         return true;
     }
