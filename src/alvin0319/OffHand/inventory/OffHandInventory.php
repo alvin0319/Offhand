@@ -25,7 +25,7 @@
 
 declare(strict_types=1);
 
-namespace alvin0319\Offhand;
+namespace alvin0319\OffHand\inventory;
 
 use pocketmine\inventory\BaseInventory;
 use pocketmine\item\Item;
@@ -34,7 +34,7 @@ use pocketmine\network\mcpe\protocol\types\ContainerIds;
 use pocketmine\Player;
 use function count;
 
-class PlayerOffhandInventory extends BaseInventory{
+class OffHandInventory extends BaseInventory{
 
 	public const SLOT_OFFHAND = 0;
 
@@ -46,18 +46,18 @@ class PlayerOffhandInventory extends BaseInventory{
 	}
 
 	public function getName() : string{
-		return "OffhandInventory";
+		return "OffHandInventory";
 	}
 
 	public function getDefaultSize() : int{
 		return 1;
 	}
 
-	public function getItemInOffhand() : Item{
+	public function getItemInOffHand() : Item{
 		return $this->getItem(0);
 	}
 
-	public function setItemInOffhand(Item $item) : void{
+	public function setItemInOffHand(Item $item) : void{
 		$this->setItem(self::SLOT_OFFHAND, $item);
 	}
 
@@ -68,14 +68,13 @@ class PlayerOffhandInventory extends BaseInventory{
 
 	public function broadcastMobEquipment(array $players = []) : int{
 		if(count($players) === 0){
-			$players = $this->holder->getViewers() + [$this->holder]; // viewers dont have himself
+			$players = $this->holder->getViewers() + [$this->holder]; 
 		}
 		$pk = new MobEquipmentPacket();
-		$pk->item = $this->getItemInOffhand();
+		$pk->item = $this->getItemInOffHand();
 		$pk->inventorySlot = $pk->hotbarSlot = 0;
 		$pk->windowId = ContainerIds::OFFHAND;
 		$pk->entityRuntimeId = $this->holder->getId();
-
 		$this->holder->getServer()->broadcastPacket($players, $pk);
 		return count($players);
 	}

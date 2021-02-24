@@ -25,7 +25,7 @@
 
 declare(strict_types=1);
 
-namespace alvin0319\Offhand;
+namespace alvin0319\OffHand;
 
 use pocketmine\entity\Entity;
 use pocketmine\event\Listener;
@@ -43,10 +43,10 @@ use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
 
-class Offhand extends PluginBase implements Listener{
+class OffHand extends PluginBase implements Listener{
 	use SingletonTrait;
 
-	/** @var PlayerOffhandInventory[] */
+	/** @var PlayerOffHandInventory[] */
 	protected array $inventories = [];
 
 	public function onLoad() : void{
@@ -56,30 +56,31 @@ class Offhand extends PluginBase implements Listener{
 	public function onEnable() : void{
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 	}
-
-	public function onPlayerLogin(PlayerLoginEvent $event){
-		$player = $event->getPlayer();
-		$this->getOffhandInventory($player)->broadcastMobEquipment();
-	}
-
-	public function onPlayerQuit(PlayerQuitEvent $event) : void{
-		$player = $event->getPlayer();
-		$inv = $this->getOffhandInventory($player);
-		$item = $inv->getItemInOffhand();
-		$player->namedtag->setTag($item->nbtSerialize(-1, "offhand"));
-	}
-
-	public function getOffhandInventory(Player $player) : PlayerOffhandInventory{
+	
+	public function getOffHandInventory(Player $player) : PlayerOffhandInventory{
 		if(isset($this->inventories[$player->getRawUniqueId()])){
 			return $this->inventories[$player->getRawUniqueId()];
 		}
-		$inv = new PlayerOffhandInventory($player);
+		$inv = new OffHandInventory($player);
 		if($player->namedtag->hasTag("offhand", CompoundTag::class)){
 			$inv->setItemInOffhand(Item::nbtDeserialize($player->namedtag->getCompoundTag("offhand")));
 		}
 		$player->addWindow($inv, ContainerIds::OFFHAND, true);
 		$player->getDataPropertyManager()->setByte(Entity::DATA_COLOR, 0);
 		return $this->inventories[$player->getRawUniqueId()] = $inv;
+	}
+
+
+	public function onPlayerLogin(PlayerLoginEvent $event){
+		$player = $event->getPlayer();
+		$this->getOffHandInventory($player)->broadcastMobEquipment();
+	}
+
+	public function onPlayerQuit(PlayerQuitEvent $event) : void{
+		$player = $event->getPlayer();
+		$inv = $this->getOffHandInventory($player);
+		$item = $inv->getItemInOffHand();
+		$player->namedtag->setTag($item->nbtSerialize(-1, "offhand"));
 	}
 
 	public function onDataPacketReceive(DataPacketReceiveEvent $event) : void{
@@ -89,14 +90,14 @@ class Offhand extends PluginBase implements Listener{
 			if($packet->windowId === ContainerIds::OFFHAND){
 				$event->setCancelled();
 				if($packet->entityRuntimeId === $player->getId()){
-					$inv = $this->getOffhandInventory($player);
+					$inv = $this->getOffHandInventory($player);
 					if($this->getConfig()->get("check-inventory-transaction", true)){
 						if(!$inv->getItem($packet->hotbarSlot)->equalsExact($packet->item)){
 							$this->getLogger()->debug("Tried to equip {$packet->item} to {$player->getName()}, but have {$inv->getItem($packet->hotbarSlot)} in target slot");
 							return;
 						}
 					}
-					$inv->setItemInOffhand($packet->item);
+					$inv->setItemInOffHand($packet->item);
 				}
 			}
 		}
@@ -106,7 +107,7 @@ class Offhand extends PluginBase implements Listener{
 		$packet = $event->getPacket();
 		$player = $event->getPlayer();
 		if($packet instanceof AddPlayerPacket){
-			$inv = $this->getOffhandInventory($player);
+			$inv = $this->getOffHandInventory($player);
 			$inv->broadcastMobEquipment();
 		}
 	}
@@ -119,7 +120,7 @@ class Offhand extends PluginBase implements Listener{
 		if(!$this->getConfig()->get("drop-item-on-death", false) && !$event->getKeepInventory()){
 			return;
 		}
-		$event->setDrops($event->getDrops() + [$this->getOffhandInventory($event->getPlayer())->getItemInOffhand()]);
-		$this->getOffhandInventory($event->getPlayer())->clearAll();
+		$event->setDrops($event->getDrops() + [$this->getOffHandInventory($event->getPlayer())->getItemInOffHand()]);
+		$this->getOffHandInventory($event->getPlayer())->clearAll();
 	}
 }
