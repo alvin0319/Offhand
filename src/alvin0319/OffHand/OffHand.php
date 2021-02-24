@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace alvin0319\OffHand;
 
+use alvin0319\OffHand\inventory\OffHandInventory;
 use pocketmine\entity\Entity;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerDeathEvent;
