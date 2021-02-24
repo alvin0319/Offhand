@@ -58,7 +58,7 @@ class OffHand extends PluginBase implements Listener{
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 	}
 	
-	public function getOffHandInventory(Player $player) : PlayerOffhandInventory{
+	public function getOffHandInventory(Player $player) : OffHandInventory{
 		if(isset($this->inventories[$player->getRawUniqueId()])){
 			return $this->inventories[$player->getRawUniqueId()];
 		}
