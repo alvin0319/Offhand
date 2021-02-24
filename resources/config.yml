@@ -1,0 +1,4 @@
+# If true, player will drop item
+drop-item-on-death: false
+# If false, plugin will not check transaction, it will cause item copy bug when player connects Toolbox
+check-inventory-transaction: true

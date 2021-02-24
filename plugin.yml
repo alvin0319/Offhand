@@ -1,7 +1,7 @@
 name: Offhand
 author: alvin0319
-main: alvin0319\OffHand\OffHand
-version: 1.2.0
-api: 3.15.1
+main: alvin0319\Offhand\Offhand
+version: 2.0.0
+api: 3.0.0
 
 mcpe-protocol: 422
