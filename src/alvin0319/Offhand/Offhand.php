@@ -111,6 +111,10 @@ class Offhand extends PluginBase implements Listener{
 		}
 	}
 
+	/**
+	 * @param PlayerDeathEvent $event
+	 * @priority MONITOR
+	 */
 	public function onPlayerDeath(PlayerDeathEvent $event) : void{
 		if(!$this->getConfig()->get("drop-item-on-death", false) && !$event->getKeepInventory()){
 			return;

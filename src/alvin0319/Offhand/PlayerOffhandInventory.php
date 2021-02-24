@@ -32,7 +32,6 @@ use pocketmine\item\Item;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
 use pocketmine\Player;
-
 use function count;
 
 class PlayerOffhandInventory extends BaseInventory{
