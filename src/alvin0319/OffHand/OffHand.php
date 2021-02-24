@@ -47,7 +47,7 @@ use pocketmine\utils\SingletonTrait;
 class OffHand extends PluginBase implements Listener{
 	use SingletonTrait;
 
-	/** @var PlayerOffHandInventory[] */
+	/** @var OffHandInventory[] */
 	protected array $inventories = [];
 
 	public function onLoad() : void{
