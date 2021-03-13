@@ -8,12 +8,6 @@ A PocketMine-MP Plugin that implements OffHand (and OffHandInventory)
 * [x] Off hand item store
 * [ ] More...
 
-## Known bugs
-
-None 😉
-
-If you have experienced bug? Please report the bug on issue tracker.
-
 ## License
 
 See [License](https://github.com/alvin0319/OffHand/tree/master/LICENSE)
