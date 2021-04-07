@@ -31,6 +31,7 @@ use pocketmine\inventory\BaseInventory;
 use pocketmine\item\Item;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
+use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
 use pocketmine\Player;
 use function count;
 
@@ -71,7 +72,7 @@ class PlayerOffhandInventory extends BaseInventory{
 			$players = $this->holder->getViewers() + [$this->holder]; // viewers dont have himself
 		}
 		$pk = new MobEquipmentPacket();
-		$pk->item = $this->getItemInOffhand();
+		$pk->item = ItemStackWrapper::legacy($this->getItemInOffhand());
 		$pk->inventorySlot = $pk->hotbarSlot = 0;
 		$pk->windowId = ContainerIds::OFFHAND;
 		$pk->entityRuntimeId = $this->holder->getId();
