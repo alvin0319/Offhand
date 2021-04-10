@@ -91,12 +91,12 @@ class Offhand extends PluginBase implements Listener{
 				if($packet->entityRuntimeId === $player->getId()){
 					$inv = $this->getOffhandInventory($player);
 					if($this->getConfig()->get("check-inventory-transaction", true)){
-						if(!$inv->getItem($packet->hotbarSlot)->equalsExact($packet->item)){
-							$this->getLogger()->debug("Tried to equip {$packet->item} to {$player->getName()}, but have {$inv->getItem($packet->hotbarSlot)} in target slot");
+						if(!$inv->getItem($packet->hotbarSlot)->equalsExact($packet->item->getItemStack())){
+							$this->getLogger()->debug("Tried to equip {$packet->item->getItemStack()} to {$player->getName()}, but have {$inv->getItem($packet->hotbarSlot)} in target slot");
 							return;
 						}
 					}
-					$inv->setItemInOffhand($packet->item);
+					$inv->setItemInOffhand($packet->item->getItemStack());
 				}
 			}
 		}
