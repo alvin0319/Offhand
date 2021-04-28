@@ -48,6 +48,8 @@ use function version_compare;
 class Offhand extends PluginBase implements Listener{
 	use SingletonTrait;
 
+	public const TAG_OFFHAND = "offhand";
+
 	/** @var PlayerOffhandInventory[] */
 	protected $inventories = [];
 
@@ -73,7 +75,7 @@ class Offhand extends PluginBase implements Listener{
 		$player = $event->getPlayer();
 		$inv = $this->getOffhandInventory($player);
 		$item = $inv->getItemInOffhand();
-		$player->namedtag->setTag($item->nbtSerialize(-1, "offhand"));
+		$player->namedtag->setTag($item->nbtSerialize(-1, self::TAG_OFFHAND));
 	}
 
 	public function getOffhandInventory(Player $player) : PlayerOffhandInventory{
@@ -81,8 +83,8 @@ class Offhand extends PluginBase implements Listener{
 			return $this->inventories[$player->getRawUniqueId()];
 		}
 		$inv = new PlayerOffhandInventory($player);
-		if($player->namedtag->hasTag("offhand", CompoundTag::class)){
-			$inv->setItemInOffhand(Item::nbtDeserialize($player->namedtag->getCompoundTag("offhand")));
+		if($player->namedtag->hasTag(self::TAG_OFFHAND, CompoundTag::class)){
+			$inv->setItemInOffhand(Item::nbtDeserialize($player->namedtag->getCompoundTag(self::TAG_OFFHAND)));
 		}
 		$player->addWindow($inv, ContainerIds::OFFHAND, true);
 		$player->getDataPropertyManager()->setByte(Entity::DATA_COLOR, 0);
