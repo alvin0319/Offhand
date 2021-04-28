@@ -4,7 +4,7 @@
 A PocketMine-MP plugin that implements Offhand (and OffhandInventory)
 
 # Introduction
-PocketMine-MP does not support Offhand, also doesn't handle except of offhand
+PocketMine-MP does not support Offhand
 
 This plugin will enable Offhand on your server
 
