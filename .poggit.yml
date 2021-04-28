@@ -5,4 +5,5 @@ branches:
 projects:
   OffHand:
     path: ""
+    icon: assets/icon.png
 ...

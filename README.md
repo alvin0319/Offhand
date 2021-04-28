@@ -1,17 +1,11 @@
-# OffHand
-A PocketMine-MP Plugin that implements OffHand (and OffHandInventory)
+# Offhand
+<a align="center" href="https://poggit.pmmp.io/p/OffHand"><img src="https://poggit.pmmp.io/shield.state/OffHand"></a>
 
-## Todo
+A PocketMine-MP plugin that implements Offhand (and OffhandInventory)
 
-* [x] Off hand Inventory
-* [x] Transaction handle
-* [x] Off hand item store
-* [ ] More...
+# Introduction
+PocketMine-MP does not support Offhand, also doesn't handle except of offhand
 
-## License
+This plugin will enable Offhand on your server
 
-See [License](https://github.com/alvin0319/OffHand/tree/master/LICENSE)
-
-## Image
-
-![](https://raw.githubusercontent.com/alvin0319/OffHand/master/image.png)
+If you are experiencing bug, please open an issue on [issue tracker](https://github.com/alvin0319/Offhand/issues/new)
