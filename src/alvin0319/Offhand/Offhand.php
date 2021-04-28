@@ -42,12 +42,14 @@ use pocketmine\network\mcpe\protocol\types\ContainerIds;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
+use function phpversion;
+use function version_compare;
 
 class Offhand extends PluginBase implements Listener{
 	use SingletonTrait;
 
 	/** @var PlayerOffhandInventory[] */
-	protected array $inventories = [];
+	protected $inventories = [];
 
 	public function onLoad() : void{
 		self::setInstance($this);
@@ -55,6 +57,11 @@ class Offhand extends PluginBase implements Listener{
 
 	public function onEnable() : void{
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
+		if(version_compare(phpversion(), "7.4", "<")){
+			// TODO: remove this when poggit officially supports PHP 7.4 and drops PHP 7.3
+			$this->getLogger()->critical("I've detected using outdated PHP binary! (" . phpversion() . ")");
+			$this->getLogger()->critical("Offhand will not support this PHP version ( " . phpversion() . ") in the future");
+		}
 	}
 
 	public function onPlayerLogin(PlayerLoginEvent $event){
@@ -113,6 +120,7 @@ class Offhand extends PluginBase implements Listener{
 
 	/**
 	 * @param PlayerDeathEvent $event
+	 *
 	 * @priority MONITOR
 	 */
 	public function onPlayerDeath(PlayerDeathEvent $event) : void{
