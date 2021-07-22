@@ -40,7 +40,7 @@ class PlayerOffhandInventory extends BaseInventory{
 	public const SLOT_OFFHAND = 0;
 
 	/** @var Player */
-	protected $holder;
+	protected Player $holder;
 
 	public function __construct(Player $holder){
 		parent::__construct();

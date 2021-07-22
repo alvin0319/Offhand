@@ -4,3 +4,6 @@ main: alvin0319\Offhand\Offhand
 version: 2.0.5
 api: 3.0.0
 mcpe-protocol: 448
+
+extensions:
+  Core: ">=7.4"

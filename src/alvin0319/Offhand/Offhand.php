@@ -51,7 +51,7 @@ class Offhand extends PluginBase implements Listener{
 	public const TAG_OFFHAND = "offhand";
 
 	/** @var PlayerOffhandInventory[] */
-	protected $inventories = [];
+	protected array $inventories = [];
 
 	public function onLoad() : void{
 		self::setInstance($this);
@@ -59,11 +59,6 @@ class Offhand extends PluginBase implements Listener{
 
 	public function onEnable() : void{
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
-		if(version_compare(phpversion(), "7.4", "<")){
-			// TODO: remove this when poggit officially supports PHP 7.4 and drops PHP 7.3
-			$this->getLogger()->critical("I've detected using outdated PHP binary! (" . phpversion() . ")");
-			$this->getLogger()->critical("Offhand will not support this PHP version ( " . phpversion() . ") in the future");
-		}
 	}
 
 	public function onPlayerLogin(PlayerLoginEvent $event){
