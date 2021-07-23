@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace alvin0319\Offhand;
 
+use InvalidArgumentException;
+use InvalidStateException;
 use pocketmine\entity\Entity;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerDeathEvent;
@@ -41,6 +43,7 @@ use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\types\ContainerIds;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
+use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\SingletonTrait;
 use function phpversion;
 use function version_compare;
@@ -81,9 +84,13 @@ class Offhand extends PluginBase implements Listener{
 		if($player->namedtag->hasTag(self::TAG_OFFHAND, CompoundTag::class)){
 			$inv->setItemInOffhand(Item::nbtDeserialize($player->namedtag->getCompoundTag(self::TAG_OFFHAND)));
 		}
-		$player->addWindow($inv, ContainerIds::OFFHAND, true);
-		$player->getDataPropertyManager()->setByte(Entity::DATA_COLOR, 0);
-		return $this->inventories[$player->getRawUniqueId()] = $inv;
+		try{
+			$player->addWindow($inv, ContainerIds::OFFHAND, true);
+			$player->getDataPropertyManager()->setByte(Entity::DATA_COLOR, 0);
+			return $this->inventories[$player->getRawUniqueId()] = $inv;
+		}catch(InvalidStateException | InvalidArgumentException $e){
+			throw new AssumptionFailedError("Failed to create Offhand instance, perhaps another plugin is using Offhand container id");
+		}
 	}
 
 	public function onDataPacketReceive(DataPacketReceiveEvent $event) : void{
