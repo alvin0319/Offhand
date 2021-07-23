@@ -89,19 +89,15 @@ class Offhand extends PluginBase implements Listener{
 	public function onDataPacketReceive(DataPacketReceiveEvent $event) : void{
 		$player = $event->getPlayer();
 		$packet = $event->getPacket();
-		if($packet instanceof MobEquipmentPacket){
-			if($packet->windowId === ContainerIds::OFFHAND){
-				$event->setCancelled();
-				if($packet->entityRuntimeId === $player->getId()){
-					$inv = $this->getOffhandInventory($player);
-					if($this->getConfig()->get("check-inventory-transaction", true)){
-						if(!$inv->getItem($packet->hotbarSlot)->equalsExact($packet->item->getItemStack())){
-							$this->getLogger()->debug("Tried to equip {$packet->item->getItemStack()} to {$player->getName()}, but have {$inv->getItem($packet->hotbarSlot)} in target slot");
-							return;
-						}
-					}
-					$inv->setItemInOffhand($packet->item->getItemStack());
+		if(($packet instanceof MobEquipmentPacket) && $packet->windowId === ContainerIds::OFFHAND){
+			$event->setCancelled();
+			if($packet->entityRuntimeId === $player->getId()){
+				$inv = $this->getOffhandInventory($player);
+				if($this->getConfig()->get("check-inventory-transaction", true) && !$inv->getItem($packet->hotbarSlot)->equalsExact($packet->item->getItemStack())){
+					$this->getLogger()->debug("Tried to equip {$packet->item->getItemStack()} to {$player->getName()}, but have {$inv->getItem($packet->hotbarSlot)} in target slot");
+					return;
 				}
+				$inv->setItemInOffhand($packet->item->getItemStack());
 			}
 		}
 	}
