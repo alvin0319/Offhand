@@ -45,8 +45,6 @@ use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\SingletonTrait;
-use function phpversion;
-use function version_compare;
 
 class Offhand extends PluginBase implements Listener{
 	use SingletonTrait;
@@ -64,7 +62,7 @@ class Offhand extends PluginBase implements Listener{
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 	}
 
-	public function onPlayerLogin(PlayerLoginEvent $event){
+	public function onPlayerLogin(PlayerLoginEvent $event) : void{
 		$player = $event->getPlayer();
 		$this->getOffhandInventory($player)->broadcastMobEquipment();
 	}
@@ -74,6 +72,7 @@ class Offhand extends PluginBase implements Listener{
 		$inv = $this->getOffhandInventory($player);
 		$item = $inv->getItemInOffhand();
 		$player->namedtag->setTag($item->nbtSerialize(-1, self::TAG_OFFHAND));
+		unset($this->inventories[$player->getRawUniqueId()]);
 	}
 
 	public function getOffhandInventory(Player $player) : PlayerOffhandInventory{
