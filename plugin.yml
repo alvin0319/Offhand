@@ -1,9 +1,9 @@
 name: Offhand
 author: alvin0319
 main: alvin0319\Offhand\Offhand
-version: 2.1.1
+version: 2.1.2
 api: 3.0.0
-mcpe-protocol: 448
+mcpe-protocol: 465
 
 extensions:
   Core: ">=7.4"
