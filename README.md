@@ -3,6 +3,11 @@
 
 A PocketMine-MP plugin that implements Offhand (and OffhandInventory)
 
+# This plugin is going to be abandoned
+Since PM4 has Offhand support, this plugin is going to be abandoned.
+
+Thanks for using this plugin!
+
 # Introduction
 PocketMine-MP does not support Offhand
 
